@@ -4,11 +4,33 @@
 
 import maestro
 import xbox
-import drive
+import drivetrain
 import time
 
 m = maestro.Controller()
-dt = drive.DriveTrain(m, 0, 1) #maestro channels 0 and 1 for left and right motors
+motors = [
+    {
+        "channel": 0,
+        "side": 0,
+        "direction": 1
+    },
+    {
+        "channel": 1,
+        "side": 0,
+        "direction": -1
+    },
+    {
+        "channel": 2,
+        "side": 1,
+        "direction": -1
+    },
+    {
+        "channel": 3,
+        "side": 1,
+        "direction": 1
+    },
+]
+dt = drivetrain.DriveTrain(m, motors)
 j = xbox.Joystick()
 
 # Wrapping the robot loop in a try/finally structure makes sure that the robot stops
@@ -28,7 +50,11 @@ try:
         else:
             dt.stop()
         time.sleep(0.02)  #Throttle robot loop to around 50hz
+except:
+    j.close();
+    dt.stop();
 finally:
     print "stopping robot"
+    j.close();
     dt.stop()  #stop on error or loop completion
     
