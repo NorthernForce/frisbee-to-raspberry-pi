@@ -5,21 +5,7 @@
 #   Tank Drive: uses two joysticks to control motor speeds left and right.
 # A Pololu Maestro is used to send PWM signals to left and right motor controllers.
 
-
-# When using motor controllers, the maestro's speed setting can be used to tune the 
-# responsiveness of the robot.  Low values dampen acceleration, making for a more
-# stable robot. High values increase responsiveness, but can lead to a tippy robot.
-# Try values around 50 to 100.
-RESPONSIVENESS = 60 # this is also considered "speed"
-
-# These are the motor controller limits, measured in Maestro units.  
-# These default values typically work fine and align with maestro's default limits.
-# Vaules should be adjusted so that center stops the motors and the min/max values
-# limit speed range you want for your robot.
-MIN = 4000
-CENTER = 6000
-MAX = 8000
-
+import simpleservo
 
 class DriveTrain:
 
@@ -29,13 +15,8 @@ class DriveTrain:
         self.maestro = maestro
         self.motors = motors
         # Init motor accel/speed params
-        for motor in self.motors:
-            self.maestro.setAccel(motor["channel"], 0)
-            self.maestro.setSpeed(motor["channel"], RESPONSIVENESS)
-        # Motor min/center/max values
-        self.min = MIN
-        self.center = CENTER
-        self.max = MAX
+        for index, motor in enumerate(self.motors):
+            self.motors[index]["servo"] = simpleservo(m, self.motors["channel"])
 
     # Mix steering and speed inputs (-1.0 to 1.0) into motor L/R powers (-1.0 to 1.0).
     def _arcadeMix(self, steer, drive):
@@ -54,17 +35,11 @@ class DriveTrain:
 
         for motor in self.motors:
             if (motor["side"] == 0):
-                scale = scaleL * motor["direction"];
+                scale = scaleL * motor["direction"]
             else:
-                scale = scaleR * motor["direction"];
+                scale = scaleR * motor["direction"]
 
-
-            if (scale >= 0):
-                target = int(self.center + (self.max - self.center) * scale)
-            else:
-                target = int(self.center + (self.center - self.min) * scale)
-
-            self.maestro.setTarget(motor["channel"], target)
+            motor["servo"].drive(scale)
 
     # Drive the robot motors given left and right motor powers (tank drive).
     # These motor powers typically come from the Y axis of 2 analog joysticks.
@@ -77,7 +52,7 @@ class DriveTrain:
     # Set both motors to stopped (center) position
     def stop(self):
         for motor in self.motors:
-            self.maestro.setAccel(motor["channel"], self.center)
+            motor["servo"].close()
 
     # Close should be used when shutting down Drive object
     def close(self):

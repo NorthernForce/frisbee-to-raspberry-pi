@@ -5,11 +5,14 @@
 import maestro
 import xbox
 import drivetrain
+import spinner
+# import releaser
+# import tilter
 import time
 
 m = maestro.Controller()
 
-motors = [
+dt_motors = [
     {
         "channel": 0,
         "side": 0,
@@ -31,7 +34,13 @@ motors = [
         "direction": 1
     },
 ]
-dt = drivetrain.DriveTrain(m, motors)
+dt = drivetrain.DriveTrain(m, dt_motors)
+
+spinner_servo = {
+    "channel": 4,
+    "direction": 1
+}
+spinner = spinner.Spinner(m, spinner_servo)
 
 j = xbox.Joystick()
 
@@ -45,15 +54,21 @@ try:
         if j.connected():
             # Joystick inputs are sent to the drive train in Arcade Drive mode
             # If controls are backwards, simply negate the respective input
-            dt.drive(j.leftX(), j.leftY())
+            dt.drive(j.rightX(), j.leftY())
+
+            # spin the spinner if needs spinning
+            spinner.drive(j.leftTrigger)
+
             # Pressing the Xbox back button will disable the robot loop
             if j.Back():
                 enabled = False
         else:
             dt.stop()
+            spinner.stop()
         time.sleep(0.02)  #Throttle robot loop to around 50hz
 finally:
     print "stopping robot"
     j.close();
     dt.stop()  #stop on error or loop completion
+    spinner.stop()
     
