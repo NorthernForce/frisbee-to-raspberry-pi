@@ -16,7 +16,7 @@ class DriveTrain:
         self.motors = motors
         # Init motor accel/speed params
         for index, motor in enumerate(self.motors):
-            self.motors[index]["servo"] = simpleservo(m, self.motors["channel"])
+            self.motors[index]["servo"] = simpleservo.SimpleServo(self.maestro, self.motors[index]["channel"])
 
     # Mix steering and speed inputs (-1.0 to 1.0) into motor L/R powers (-1.0 to 1.0).
     def _arcadeMix(self, steer, drive):

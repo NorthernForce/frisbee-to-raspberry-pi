@@ -1,6 +1,6 @@
 import simpleservo
 
-class Spinner():
+class Tilter():
     def __init__(self, maestro, settings):
         self.maestro = maestro
         self.settings = settings

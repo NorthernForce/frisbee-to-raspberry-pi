@@ -7,7 +7,7 @@ import xbox
 import drivetrain
 import spinner
 # import releaser
-# import tilter
+import tilter
 import time
 
 m = maestro.Controller()
@@ -16,15 +16,15 @@ dt_motors = [
     {
         "channel": 0,
         "side": 0,
-        "direction": 1
-    },
-    {
-        "channel": 2,
-        "side": 0,
         "direction": -1
     },
     {
         "channel": 1,
+        "side": 0,
+        "direction": 1
+    },
+    {
+        "channel": 2,
         "side": 1,
         "direction": -1
     },
@@ -42,6 +42,22 @@ spinner_servo = {
 }
 spinner = spinner.Spinner(m, spinner_servo)
 
+tilter_servo = {
+    "channel": 5,
+    "direction": -1
+}
+tilter = tilter.Tilter(m, tilter_servo)
+
+releaser_servos = {
+    "test1": {
+        "channel": 6
+    },
+    "test2": {
+        "channel": 7
+    }
+}
+releaser = releaser.Releaser(m, releaser_servos);
+
 j = xbox.Joystick()
 
 # Wrapping the robot loop in a try/finally structure makes sure that the robot stops
@@ -57,7 +73,10 @@ try:
             dt.drive(j.rightX(), j.leftY())
 
             # spin the spinner if needs spinning
-            spinner.drive(j.leftTrigger)
+            spinner.drive(j.leftTrigger())
+
+            # tilter
+            tilter.drive(j.dpadDown() * -1 + j.dpadUp())
 
             # Pressing the Xbox back button will disable the robot loop
             if j.Back():
@@ -65,10 +84,14 @@ try:
         else:
             dt.stop()
             spinner.stop()
+            tilter.stop()
+            release.stop()
         time.sleep(0.02)  #Throttle robot loop to around 50hz
 finally:
     print "stopping robot"
-    j.close();
+    j.close()
     dt.stop()  #stop on error or loop completion
     spinner.stop()
+    tilter.stop()
+    releaser.stop()
     

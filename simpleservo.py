@@ -41,10 +41,10 @@ class SimpleServo:
     # speed is -1.0 to 1.0
     def drive(self, amount):
         # convert to servo units
-        if (speed >= 0):
-            target = int(self.center + (self.max - self.center) * speed)
+        if (amount >= 0):
+            target = int(self.center + (self.max - self.center) * amount)
         else:
-            target = int(self.center + (self.center - self.min) * speed)
+            target = int(self.center + (self.center - self.min) * amount)
 
         self.maestro.setTarget(self.channel, target)
 
